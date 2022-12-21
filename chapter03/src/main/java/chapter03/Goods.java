@@ -11,9 +11,16 @@ public class Goods {
 		Goods.countOfGoods += 1;
 	}
 	
+	public Goods(String name, int price, int countStock, int countSold) {
+		this.name = name;
+		this.price = price;
+		this.countStock = countStock;
+		this.countSold = countSold;
+	}
+	
 	public int calcDiscountPrice(float discountRate) {
 		int i = (int)4.5;
-		float f = 3;
+		float f = 3f;
 		return (int) (price*discountRate);
 	}
 	public void printInfo() {
