@@ -1,10 +1,24 @@
 package paint;
 
-public class Point {
+public class Point implements Drawable{
 	private int x;
 	private int y;
 	public int getX() {
 		return x;
+	}
+	public Point() {
+		this.x = 0;
+		this.y = 0;
+	}
+	
+	public void draw() {
+		show();
+	}
+	
+	public Point(int x, int y) {
+		this.x = x;
+		this.y = y;
+		
 	}
 	public void setX(int x) {
 		this.x = x;
@@ -22,6 +36,9 @@ public class Point {
 		System.out.println(x + "," +y + " 에 점을 지웠습니다");
 	}
 	public void show(boolean check) {
-		System.out.println(x + "," +y + " 에 점을 찍었습니다");
+		if(check)
+			show();
+		else
+			disapear();
 	}
 }
