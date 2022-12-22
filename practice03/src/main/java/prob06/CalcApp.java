@@ -1,4 +1,4 @@
-/*package prob06;
+package prob06;
 
 import java.util.Scanner;
 
@@ -8,7 +8,7 @@ public class CalcApp {
 		Scanner scanner = new Scanner(System.in);
 		
 		while( true ) {
-			코드를 완성 합니다 
+			
 			System.out.print( ">> " );
 			String expression = scanner.nextLine();
 			
@@ -25,37 +25,28 @@ public class CalcApp {
 			
 			int lValue = Integer.parseInt( tokens[ 0 ] );
 			int rValue = Integer.parseInt( tokens[ 2 ] );
+			Arithmatic a = null;
 			
 			switch( tokens[ 1 ] ) {
 				case "+" : {
-					Add add = new Add();
-					add.setValue( lValue, rValue );
+					a = new Add();
+					/*add.setValue( lValue, rValue );
 					int result = add.calculate();
-					System.out.println( ">> " + result );
-					
+					System.out.println( ">> " + result );*/
 					break;
 				}
 				case "-" : {
-					Sub sub = new Sub();
-					sub.setValue( lValue, rValue );
-					int result = sub.calculate();
-					System.out.println( ">> " + result );
+					a = new Sub();
 					
 					break;
 				}
 				case "*" : {
-					Mul mul = new Mul();
-					mul.setValue( lValue, rValue );
-					int result = mul.calculate();
-					System.out.println( ">> " + result );
+					a = new Mul();
 					
 					break;					
 				}
 				case "/" : {
-					Div div = new Div();
-					div.setValue( lValue, rValue );
-					int result = div.calculate();
-					System.out.println( ">> " + result );
+					a = new Div();
 					
 					break;
 				}
@@ -63,6 +54,9 @@ public class CalcApp {
 					System.out.println( ">> 알 수 없는 연산입니다.");
 				}
 			}
+			a.setValue(lValue, rValue);
+			int result = a.calculate();
+			System.out.println( ">> " + result);
 		}
 		
 		scanner.close();
@@ -70,4 +64,3 @@ public class CalcApp {
 	}
 
 }
-*/

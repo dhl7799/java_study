@@ -1,5 +1,7 @@
 package chapter03;
 
+import java.util.*;
+
 public class ArrayUtilTest {
 
 	public static void main(String[] args) {
@@ -9,7 +11,9 @@ public class ArrayUtilTest {
 		double[] darray = ArrayUtils.intToDouble(new int[]{10,20,30,40});
 		for(double d: darray)
 			System.out.println(d);
-			
+		List list = null;
+		Stack s = null;
+		Queue q = null;
 			
 
 	}
