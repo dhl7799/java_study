@@ -82,7 +82,7 @@ public class GenericTest {
 		
 		// 잘못된 사용
 		// MyStack<? extends Shape> s1 = new MyStack<>(10);
-		// s1.push(new Rect());
+		// s1.push(new rect());
 		
 		for(Shape s :in) {
 			out.push(s);
