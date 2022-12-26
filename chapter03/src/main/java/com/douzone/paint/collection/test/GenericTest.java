@@ -78,12 +78,13 @@ public class GenericTest {
 	
 	public static void drawShapeLayer(
 		List<? extends Shape> in, /* Producer, Lower Bounded */
+		
 		MyStack<? super Drawable> out /* Consumer, Upper Bounded */) {
 		
 		// 잘못된 사용
 		// MyStack<? extends Shape> s1 = new MyStack<>(10);
 		// s1.push(new rect());
-		
+		System.out.println("running");
 		for(Shape s :in) {
 			out.push(s);
 		}
