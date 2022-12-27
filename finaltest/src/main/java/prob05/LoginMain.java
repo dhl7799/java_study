@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class LoginMain {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		Scanner scanner = new Scanner(System.in);
 		
 		List<User> joinUsers = new ArrayList<User>();
@@ -36,7 +36,7 @@ public class LoginMain {
 		}
 	}
 	
-	public static void login (List<User> users, User user ) {
+	public static void login (List<User> users, User user ) throws Exception{
 		int foundindex = 0;
 		//1 2 3 4, 0 1 2 3
 		for(int i=0; i<users.size();i++) {
