@@ -24,7 +24,7 @@ public class NSLookup {
 				else {
 					InetAddress[] inetAddresses = InetAddress.getAllByName(line);
 					
-					
+			
 					for(int i=0; i<inetAddresses.length;i++) {
 						Addressline += inetAddresses[i];
 					}
