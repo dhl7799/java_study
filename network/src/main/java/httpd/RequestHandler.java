@@ -52,7 +52,7 @@ public class RequestHandler extends Thread {
 			else {
 				//methods: POST, PUT, DELETE, HEAD, CONNECT
 				//SimpleHttpServer 에서는 무시(무응답이 아님, 400 Bad Request)
-				//response400Error(outputStream, tokens[2]);
+				response404Error(outputStream, tokens[2]);
 			}
 			
 			
@@ -87,11 +87,46 @@ public class RequestHandler extends Thread {
 		}
 		
 		File file = new File(DOCUMENT_ROOT + url);
+		if(!file.exists()) {
+			response404Error(outputStream, protocol);
+			return;
+		}
 		//nio
 		byte[] body = Files.readAllBytes(file.toPath());
 		String contentType = Files.probeContentType(file.toPath());
 		//응답
-		outputStream.write("HTTP/1.1 200 OK\r\n".getBytes("UTF-8") );
+		outputStream.write((protocol +" 200 OK\r\n").getBytes("UTF-8"));
+		outputStream.write(("Content-Type:"+ contentType +"; charset=utf-8\r\n").getBytes("UTF-8") );
+		outputStream.write("\r\n".getBytes() );
+		outputStream.write(body);
+		
+	}
+
+	private void response404Error(OutputStream outputStream, String protocol) throws IOException{
+		
+		String url = "/error/404.html";
+		File file = new File(DOCUMENT_ROOT + url);
+		//HTTP/1.1 404 Not Found
+		//Content-Type:....
+		byte[] body = Files.readAllBytes(file.toPath());
+		String contentType = Files.probeContentType(file.toPath());
+		outputStream.write((protocol +" 200 OK\r\n").getBytes("UTF-8"));
+		outputStream.write(("Content-Type:"+ contentType +"; charset=utf-8\r\n").getBytes("UTF-8") );
+		outputStream.write("\r\n".getBytes() );
+		outputStream.write(body);
+		
+	}
+	
+	private void response400Error(OutputStream outputStream, String string) throws IOException{
+		//HTTP/1.1 400 Bad Request
+		//Content-Type:.....
+		//\r\n
+		//
+		String url = "/error/400.html";
+		File file = new File(DOCUMENT_ROOT + url);
+		byte[] body = Files.readAllBytes(file.toPath());
+		String contentType = Files.probeContentType(file.toPath());
+		outputStream.write((string +" 200 OK\r\n").getBytes("UTF-8"));
 		outputStream.write(("Content-Type:"+ contentType +"; charset=utf-8\r\n").getBytes("UTF-8") );
 		outputStream.write("\r\n".getBytes() );
 		outputStream.write(body);
