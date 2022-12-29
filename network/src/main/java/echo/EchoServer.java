@@ -6,8 +6,9 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
-public class EchoServer {
+public class EchoServer extends Thread{
 	public static final int PORT = 8000;
 	public static void main(String[] args) {
 		ServerSocket serverSocket = null;
@@ -53,7 +54,10 @@ public class EchoServer {
 					
 					
 					
-				} catch(IOException ex) {
+				} catch (SocketException ex) {
+					// TODO Auto-generated catch block
+					System.out.println("[server] suddenly closed by client");
+				}catch(IOException ex) {
 					System.out.println("[server] error: " + ex);
 				} finally {
 					try {

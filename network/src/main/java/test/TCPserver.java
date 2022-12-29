@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class TCPserver {
 	public static void main(String[] args) {
@@ -56,6 +57,9 @@ public class TCPserver {
 					
 					
 					
+				} catch (SocketException ex) {
+					// TODO Auto-generated catch block
+					System.out.println("[server] suddenly closed by client");
 				} catch(IOException ex) {
 					System.out.println("[server] error: " + ex);
 				} finally {
