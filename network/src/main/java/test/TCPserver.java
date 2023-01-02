@@ -16,6 +16,8 @@ public class TCPserver {
 			//1. 서버소캣 생성
 			serverSocket = new ServerSocket();
 			
+			
+			//1-1. FIN_WAIT -> TIME_WAIT 상태에서도 소켓 포트 할당이 가능하도록
 			//2. 바인딩
 			// 서버소켓에 InetSocketAddress(ip address + port)를 바인딩한다
 			// 젤 좋은건 0.0.0.0으로 해놓는것, 다른건 아이피 달라지면 연결안됨
