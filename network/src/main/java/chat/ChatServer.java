@@ -2,7 +2,6 @@ package chat;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -33,8 +32,7 @@ public class ChatServer {
         }
         catch (IOException e) {
             e.printStackTrace();
-        }
-        finally {
+        }finally {
             try {
                 if( serverSocket != null && !serverSocket.isClosed() ) {
                     serverSocket.close();

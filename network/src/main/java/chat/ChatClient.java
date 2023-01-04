@@ -1,6 +1,5 @@
 package chat;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
@@ -8,31 +7,17 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class ChatClient extends Thread{
+public class ChatClient{
     private static final String SERVER_IP = "0.0.0.0";
     private static final int SERVER_PORT = 8000;
-    private Socket socket = null;
     private static Scanner scanner = new Scanner(System.in);
     
     
-    public ChatClient(Socket socket) { 
-    	this.socket = socket; 
-    }
-    @Override
-    public void run() {
-		try {
-			while(true) { 
-				sendMessage();
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace(); 
-		}
-		
-		
-	}
+    public ChatClient() {}
+  
     public static void main(String[] args) {
         String name = null;
+        Socket socket = null;
         
         while( true ) {
             System.out.println("닉네임을 입력하세요.");
@@ -42,29 +27,35 @@ public class ChatClient extends Thread{
             if (name.isEmpty() == false ) {
                 break;
             }
-
-            System.out.println("닉네임은 한글자 이상 입력해야 합니다.\n");
+            System.out.println("똑바로 입력하세요.\n");
         }
-
-        
-
-        Socket socket = new Socket();
         try {
+        	socket = new Socket();
+        
             socket.connect( new InetSocketAddress(SERVER_IP, SERVER_PORT) );
             consoleLog("채팅방에 입장하였습니다.");
-            ChatClient chatc = new ChatClient(socket);
-            ChatClientThread chat = new ChatClientThread(socket, name);
+            ChatClientThread chat = new ChatClientThread(socket);
             chat.start();
-            chatc.start();
-            PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            PrintWriter pw = new PrintWriter(out, true);
             String request = "join:" + name + "\r\n";
             pw.println(request);
             
             
-        }
-        catch (IOException e) {
+        }catch (IOException e) {
             e.printStackTrace();
-        } 
+        }/*finally {
+            try {
+                if( socket != null && !socket.isClosed() ) {
+                	socket.close();
+                }
+                if( scanner != null) {
+                	scanner.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
         
     }
 
@@ -72,24 +63,5 @@ public class ChatClient extends Thread{
         System.out.println(log);
     }
     
-    private void sendMessage() {
-        PrintWriter pw;
-        try {
-            pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-            String message = scanner.nextLine();
-            if(message.equals("!quit")) {
-            	String request = "quit\r\n";
-                pw.println(request);
-                System.exit(0);
-            }
-            else {
-            	String request = "message:" + message + "\r\n";
-                pw.println(request);
-            }
-            
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    
 }

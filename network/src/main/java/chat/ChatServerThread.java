@@ -21,10 +21,10 @@ public class ChatServerThread extends Thread{
     @Override
     public void run() {
         try {
-            BufferedReader buffereedReader =
-                    new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-
-            PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+        	InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
+            BufferedReader buffereedReader = new BufferedReader(isr);
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            PrintWriter printWriter = new PrintWriter(out);
 
             while(true) {
                 String request = buffereedReader.readLine();
@@ -76,8 +76,6 @@ public class ChatServerThread extends Thread{
         String data = nickname + "님이 입장하였습니다.";
         consoleLog(data);
         broadcast(data);
-
-        // writer pool에 저장
         addWriter(writer);
     }
 

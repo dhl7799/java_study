@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
@@ -95,7 +94,7 @@ public class ChatWindow {
         frame.pack();
     }
 
-    // 쓰레드를 만들어서 대화를 보내기
+   
     private void sendMessage() {
         PrintWriter pw;
         try {

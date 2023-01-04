@@ -56,7 +56,8 @@ public class ChatClientApp extends Thread{
             ChatClientApp chatca = new ChatClientApp(socket);
 
             chatca.start();
-            PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+            OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            PrintWriter pw = new PrintWriter(out, true);
             String request = "join:" + name + "\r\n";
             pw.println(request);
             
@@ -75,7 +76,8 @@ public class ChatClientApp extends Thread{
     private void sendMessage() {
         PrintWriter pw;
         try {
-            pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+        	OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+            pw = new PrintWriter(out, true);
             String message = scanner.nextLine();
             if(message.equals("!quit")) {
             	String request = "quit\r\n";
@@ -84,7 +86,6 @@ public class ChatClientApp extends Thread{
             }
             else {
             	String request = "message:" + message + "\r\n";
-            	
                 pw.println(request);
             }
             
