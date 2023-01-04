@@ -1,34 +1,97 @@
 package chat.gui;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class ChatClientApp {
-
-	public static void main(String[] args) {
-		String name = null;
-		Scanner scanner = new Scanner(System.in);
-
-		while(true) {
-			System.out.println("대화명을 입력하세요.");
-			System.out.print(">>> ");
-			name = scanner.nextLine();
-			
-			if (!name.isEmpty()) {
-				break;
+public class ChatClientApp extends Thread{
+    private static final String SERVER_IP = "0.0.0.0";
+    private static final int SERVER_PORT = 8000;
+    private Socket socket = null;
+    private static Scanner scanner = new Scanner(System.in);
+    
+    
+    public ChatClientApp(Socket socket) { 
+    	this.socket = socket; 
+    }
+    @Override
+    public void run() {
+		try {
+			while(true) { 
+				sendMessage();
 			}
 			
-			System.out.println("대화명은 한글자 이상 입력해야 합니다.\n");
+		} catch (Exception e) {
+			e.printStackTrace(); 
 		}
 		
-		scanner.close();
-
-		//1. create socket
-		//2. connect to server
-		//3. get iostream
-		//4. join protocol 진행
-		//     String line = br.readLine();
-		String line = "JOIN:OK";
-		if("JOIN:OK".equals(line)) {
-			new ChatWindow(name).show();
-		}
+		
 	}
+    public static void main(String[] args) {
+        String name = null;
+        
+        while( true ) {
+            System.out.println("닉네임을 입력하세요.");
+            System.out.print(">>> ");
+            name = scanner.nextLine();
+
+            if (name.isEmpty() == false ) {
+                break;
+            }
+
+            System.out.println("닉네임은 한글자 이상 입력해야 합니다.\n");
+        }
+
+        
+
+        Socket socket = new Socket();
+        try {
+            socket.connect( new InetSocketAddress(SERVER_IP, SERVER_PORT) );
+            consoleLog("채팅방에 입장하였습니다.");
+            new ChatWindow(name, socket).show();
+            ChatClientApp chatca = new ChatClientApp(socket);
+
+            chatca.start();
+            PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+            String request = "join:" + name + "\r\n";
+            pw.println(request);
+            
+            
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        } 
+        
+    }
+
+    private static void consoleLog(String log) {
+        System.out.println(log);
+    }
+    
+    private void sendMessage() {
+        PrintWriter pw;
+        try {
+            pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+            String message = scanner.nextLine();
+            if(message.equals("!quit")) {
+            	String request = "quit\r\n";
+                pw.println(request);
+                System.exit(0);
+            }
+            else {
+            	String request = "message:" + message + "\r\n";
+            	
+                pw.println(request);
+            }
+            
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
 }

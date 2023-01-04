@@ -2,82 +2,101 @@ package chat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-
 import java.net.Socket;
-import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
-import java.util.ArrayList;
+public class ChatServerThread extends Thread{
+    private String nickname = null;
+    private Socket socket = null;
+    List<PrintWriter> userlist = null;
 
-
-public class ChatServerThread extends Thread {
-	static ArrayList<Socket> userlist = new ArrayList<Socket>(); 
-	Socket socket = null;
-	
-	public ChatServerThread(Socket socket) {
-		this.socket = socket; 
-		userlist.add(socket); 
-	}
-	@Override
-	public void run() {
-		try {
-        	// 연결 확인용
-			System.out.println("서버 : " + socket.getInetAddress() 
-            						+ " IP의 클라이언트와 연결되었습니다");
-			
-			// InputStream - 클라이언트에서 보낸 메세지 읽기
-			InputStream input = socket.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-			
-			// OutputStream - 서버에서 클라이언트로 메세지 보내기
-			OutputStream out = socket.getOutputStream();
-			PrintWriter writer = new PrintWriter(out, true);
-			
-			// 클라이언트에게 연결되었다는 메세지 보내기
-			writer.print("닉네임>>");
-			
-			String data = null; // Client에서 보낸 값 저장
-			String name = null; // 클라이언트 이름 설정용
-			boolean identify = false;
-			
-            // 클라이언트가 메세지 입력시마다 수행
-			while((data = reader.readLine()) != null ) {
-				if(!identify) { // 연결 후 한번만 노출
-					name = data; // 이름 할당
-					identify = true;
-					writer.println(name + "님이 입장하였습니다 즐거운 채팅되세요.");
-					continue;
-				}
-				
-                // list 안에 클라이언트 정보가 담겨있음
-				for(int i = 0; i<userlist.size(); i++) { 
-					out = userlist.get(i).getOutputStream();
-					writer = new PrintWriter(out, true);
-                    // 클라이언트에게 메세지 발송
-					writer.println(name + " : " + data); 
-				}
-			}
-		} catch(SocketException ex) {
-			System.out.println("[server] suddenly closed by client");
-		} catch(IOException ex) {
-			log("error:" + ex);
-		} finally {
-			try {
-				if(socket != null && !socket.isClosed()) {
-					socket.close();
-				}
-			} catch(IOException ex) {
-				ex.printStackTrace();
-			}
-		}   		
+    public ChatServerThread(Socket socket, List<PrintWriter> listWriters) {
+        this.socket = socket;
+        this.userlist = listWriters;
     }
-	private static void log(String message) {
-		System.out.println("[EchoServer] " + message);
-	}
+    @Override
+    public void run() {
+        try {
+            BufferedReader buffereedReader =
+                    new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 
+            PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+
+            while(true) {
+                String request = buffereedReader.readLine();
+
+                if( request == null) {
+                    consoleLog("클라이언트로부터 연결 끊김");
+                    doQuit(printWriter);
+                    break;
+                }
+
+                String[] tokens = request.split(":");
+                if("join".equals(tokens[0])) {
+
+                    doJoin(tokens[1], printWriter);
+                }
+                else if("message".equals(tokens[0])) {
+                    doMessage(tokens[1]);
+                }
+                else if("quit".equals(tokens[0])) {
+                    doQuit(printWriter);
+                }
+            }
+        }
+        catch(IOException e) {
+            consoleLog(this.nickname + "님이 채팅방을 나갔습니다.");
+        }
+    }
+
+    private void doQuit(PrintWriter writer) {
+        removeWriter(writer);
+
+        String data = this.nickname + "님이 퇴장했습니다.";
+        broadcast(data);
+    }
+
+    private void removeWriter(PrintWriter writer) {
+        synchronized (userlist) {
+        	userlist.remove(writer);
+        }
+    }
+
+    private void doMessage(String data) {
+        broadcast(this.nickname + ":" + data);
+    }
+
+    private void doJoin(String nickname, PrintWriter writer) {
+        this.nickname = nickname;
+
+        String data = nickname + "님이 입장하였습니다.";
+        consoleLog(data);
+        broadcast(data);
+
+        // writer pool에 저장
+        addWriter(writer);
+    }
+
+    private void addWriter(PrintWriter writer) {
+        synchronized (userlist) {
+        	userlist.add(writer);
+        }
+    }
+
+    private void broadcast(String data) {
+        synchronized (userlist) {
+            for(PrintWriter writer : userlist) {
+                writer.println(data);
+                writer.flush();
+            }
+        }
+    }
+
+    private void consoleLog(String log) {
+        System.out.println(log);
+    }
 }
-

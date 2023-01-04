@@ -1,48 +1,51 @@
 package chat;
 
 import java.io.IOException;
-
+import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatServer {
-	public static final int PORT = 8000;
-	
+    public static final int PORT = 8000;
+    public static final String hostAddress = "0.0.0.0";
+    public static void main(String[] args) {
+        ServerSocket serverSocket = null;
+        List<PrintWriter> userlist = new ArrayList<PrintWriter>();
 
-	public static void main(String[] args) {
-		ServerSocket serverSocket = null;
-		try {
+        try {
+     
+            serverSocket = new ServerSocket();
+
             
-            serverSocket = new ServerSocket(); // 서버 소켓
-            serverSocket.bind(new InetSocketAddress("0.0.0.0", PORT), 10); //바인드
-            // 서버 오픈
-            log("starts...[port:" + PORT + "]");
-	
+            serverSocket.bind( new InetSocketAddress(hostAddress, PORT) );
+            consoleLog("연결 기다림 - " + hostAddress + ":" + PORT);
+
             
             while(true) {
-                Socket socketUser = serverSocket.accept(); // 클라이언트 접속
-                
-                Thread thd = new ChatServerThread(socketUser);
-                thd.start(); // ChatServerThread 시작
-            }                 
-  
-		} catch (IOException e) {
-			log("error:" + e);
-		} finally {
-			try {
-				if(serverSocket != null && !serverSocket.isClosed()) {
-					serverSocket.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public static void log(String message) {
-		System.out.println("[EchoServer] " + message);
-	}
+                Socket socket = serverSocket.accept();
+                ChatServerThread CST = new ChatServerThread(socket, userlist);
+                CST.start();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if( serverSocket != null && !serverSocket.isClosed() ) {
+                    serverSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    private static void consoleLog(String log) {
+        System.out.println("[server " + Thread.currentThread().getId() + "] " + log);
+    }
 }
