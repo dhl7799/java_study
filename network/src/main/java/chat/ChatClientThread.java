@@ -13,6 +13,7 @@ import java.util.Scanner;
 public class ChatClientThread extends Thread{
 	private static Scanner scanner = new Scanner(System.in);
 	Socket socket = null;
+	boolean quite = false;
 	
 	public ChatClientThread(Socket socket) { 
 		this.socket = socket; 
@@ -38,10 +39,26 @@ public class ChatClientThread extends Thread{
 			try {
 				InputStreamReader isr = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
 				BufferedReader reader = new BufferedReader(isr);
-		
+				OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+				PrintWriter pw = new PrintWriter(out, true);
 				while(true) { 
-					System.out.println(reader.readLine());
+					String line = reader.readLine();
+					if(line.equals("!@#BAN!@#")) {
+						String request = "quit\r\n";
+		                pw.println(request);
+		                System.exit(0);
+					}
+					else if(line.equals("!@#quite!@#")) {
+						quite = true;
+					}
+					else if(line.equals("!@#cancel!@#")) {
+						quite = false;
+					}
+					else {
+						System.out.println(line);
+					}
 				}
+				
 				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -59,6 +76,10 @@ public class ChatClientThread extends Thread{
             	String request = "quit\r\n";
                 pw.println(request);
                 System.exit(0);
+            }
+            else if(quite) {
+            	String request = "message:" + "벙어리된 메세지입니다." + "\r\n";
+                pw.println(request);
             }
             else {
             	String request = "message:" + message + "\r\n";

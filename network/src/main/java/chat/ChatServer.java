@@ -14,7 +14,7 @@ public class ChatServer {
     public static void main(String[] args) {
         ServerSocket serverSocket = null;
         List<PrintWriter> userlist = new ArrayList<PrintWriter>();
-
+        List<String> usernames = new ArrayList<String>();
         try {
      
             serverSocket = new ServerSocket();
@@ -26,8 +26,10 @@ public class ChatServer {
             
             while(true) {
                 Socket socket = serverSocket.accept();
-                ChatServerThread CST = new ChatServerThread(socket, userlist);
+                ChatServerThread CST = new ChatServerThread(socket, userlist,usernames);
                 CST.start();
+                
+                
             }
         }
         catch (IOException e) {

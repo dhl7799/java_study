@@ -7,16 +7,18 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ChatServerThread extends Thread{
     private String nickname = null;
     private Socket socket = null;
     List<PrintWriter> userlist = null;
-
-    public ChatServerThread(Socket socket, List<PrintWriter> listWriters) {
+    List<String> usernames = null;
+    public ChatServerThread(Socket socket, List<PrintWriter> listWriters, List<String> usernames) {
         this.socket = socket;
         this.userlist = listWriters;
+        this.usernames = usernames;
     }
     @Override
     public void run() {
@@ -41,7 +43,30 @@ public class ChatServerThread extends Thread{
                     doJoin(tokens[1], printWriter);
                 }
                 else if("message".equals(tokens[0])) {
-                    doMessage(tokens[1]);
+                	if(this.nickname.equals(usernames.get(0))) {
+                		if(tokens.length>2) {
+                			if(tokens[1].equals("ban"))
+                			{
+                				ban(tokens[2]);
+                			}
+                			else if(tokens[1].equals("quite"))
+                			{
+                				quite(tokens[2]);
+                			}
+                			else if(tokens[1].equals("cancel"))
+                			{
+                				cancel(tokens[2]);
+                			}
+                			
+                		}
+                		else {
+                			if(tokens.length>=2)
+                    			doMessage(tokens[1]);
+                		}
+                	}
+                	else{
+                		doMessage(tokens[1]);
+                	}
                 }
                 else if("quit".equals(tokens[0])) {
                     doQuit(printWriter);
@@ -55,30 +80,112 @@ public class ChatServerThread extends Thread{
 
     private void doQuit(PrintWriter writer) {
         removeWriter(writer);
-
         String data = this.nickname + "님이 퇴장했습니다.";
         broadcast(data);
     }
-
-    private void removeWriter(PrintWriter writer) {
+    
+    private int getNameIndex(String name) {
+    	return usernames.indexOf(name);
+    }
+    /*
+    private void removeWriter(PrintWriter writer, int index) {
+    	synchronized (usernames) {
+    		usernames.remove(usernames.get(index));
+        }
         synchronized (userlist) {
         	userlist.remove(writer);
         }
+        
+    }
+    */
+    private void removeWriter(PrintWriter writer) {
+    	synchronized (usernames) {
+        	usernames.remove(nickname);
+        }
+        synchronized (userlist) {
+        	userlist.remove(writer);
+        }
+        
     }
 
     private void doMessage(String data) {
         broadcast(this.nickname + ":" + data);
     }
-
+    
     private void doJoin(String nickname, PrintWriter writer) {
+    	String duplicated = "@";
+    	synchronized (usernames) {
+        	while(usernames.contains(nickname)) {
+        		nickname += duplicated;
+        	}
+        	usernames.add(nickname);
+        }
         this.nickname = nickname;
-
         String data = nickname + "님이 입장하였습니다.";
         consoleLog(data);
         broadcast(data);
         addWriter(writer);
+        synchronized (userlist) {
+        	if(userlist.size()==1) {
+        		String data1 = nickname + "님이 방장입니다.";
+                consoleLog(data1);
+                broadcast(data1);
+                
+        	}
+        }
+        
+    }
+    
+    private void setquitename(String name) {
+    	int index = getNameIndex(name);
+    	synchronized (userlist) {
+        	userlist.get(index).println("!@#quite!@#");
+        }
+    }
+    private void setquiteCancelname(String name) {
+    	int index = getNameIndex(name);
+    	synchronized (userlist) {
+        	userlist.get(index).println( "!@#cancel!@#");
+        }
+    }
+   
+    private void quite(String name) {
+    	int index = usernames.indexOf(name);
+    	if(index == -1) {
+			userlist.get(0).println("없는 유저입니다");
+			userlist.get(0).flush();
+		}
+		else {
+			broadcast("방장이 " + usernames.get(index) + "님을 벙어리 하였습니다.");
+			setquitename(usernames.get(index));
+		}
+    }
+    
+    private void cancel(String name) {
+    	int index = usernames.indexOf(name);
+    	if(index == -1) {
+			userlist.get(0).println("없는 유저입니다");
+			userlist.get(0).flush();
+		}
+		else {
+			broadcast("방장이 " + usernames.get(index) + "님을 벙어리 해제 하였습니다.");
+			setquiteCancelname(usernames.get(index));
+		}
     }
 
+    private void ban(String name) {
+    	int index = usernames.indexOf(name);
+		if(index == -1) {
+			userlist.get(0).println("없는 유저입니다");
+			userlist.get(0).flush();
+		}
+		else {
+			broadcast("방장이 " + usernames.get(index) + "님을 강퇴하였습니다.");
+			String request = "!@#BAN!@#";
+			userlist.get(index).println(request);
+		}
+		
+    }
     private void addWriter(PrintWriter writer) {
         synchronized (userlist) {
         	userlist.add(writer);

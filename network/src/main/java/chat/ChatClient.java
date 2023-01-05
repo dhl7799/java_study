@@ -44,18 +44,7 @@ public class ChatClient{
             
         }catch (IOException e) {
             e.printStackTrace();
-        }/*finally {
-            try {
-                if( socket != null && !socket.isClosed() ) {
-                	socket.close();
-                }
-                if( scanner != null) {
-                	scanner.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
+        }
         
     }
 
