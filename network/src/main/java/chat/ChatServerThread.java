@@ -44,23 +44,19 @@ public class ChatServerThread extends Thread{
                 }
                 else if("message".equals(tokens[0])) {
                 	if(this.nickname.equals(usernames.get(0))) {
-                		if(tokens.length>2) {
-                			if(tokens[1].equals("ban"))
-                			{
-                				ban(tokens[2]);
-                			}
-                			else if(tokens[1].equals("quite"))
-                			{
-                				quite(tokens[2]);
-                			}
-                			else if(tokens[1].equals("cancel"))
-                			{
-                				cancel(tokens[2]);
-                			}
-                			
-                		}
+                		if(tokens[1].equals("ban"))
+            			{
+            				ban(tokens[2]);
+            			}
+            			else if(tokens[1].equals("quite"))
+            			{
+            				quite(tokens[2]);
+            			}
+            			else if(tokens[1].equals("cancel"))
+            			{
+            				cancel(tokens[2]);
+            			}
                 		else {
-                			if(tokens.length>=2)
                     			doMessage(tokens[1]);
                 		}
                 	}
@@ -109,7 +105,13 @@ public class ChatServerThread extends Thread{
     }
 
     private void doMessage(String data) {
-        broadcast(this.nickname + ":" + data);
+    	if(this.nickname.equals(usernames.get(0))) {
+    		broadcast(this.nickname + "(방장):" + data);
+    	}
+    	else {
+    		broadcast(this.nickname + ":" + data);
+    	}
+        
     }
     
     private void doJoin(String nickname, PrintWriter writer) {
