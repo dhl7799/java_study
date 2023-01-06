@@ -27,12 +27,12 @@ public class ChatWindow {
     private Button buttonSend;
     private TextField textField;
     private TextArea textArea;
-
+    private boolean quite = false;
     private Socket socket;
 
     public ChatWindow(String name, Socket socket) {
         this.name = name;
-        frame = new Frame(name);
+        frame = new Frame(this.name);
         pannel = new Panel();
         buttonSend = new Button("Send");
         textField = new TextField();
@@ -100,11 +100,24 @@ public class ChatWindow {
         try {
             pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
             String message = textField.getText();
-            String request = "message:" + message + "\r\n";
-            pw.println(request);
-
-            textField.setText("");
-            textField.requestFocus();
+            
+            if(message.equals("!quit")) {
+            	String request = "quit\r\n";
+                pw.println(request);
+                System.exit(0);
+            }
+            else if(quite) {
+            	String request = "message:" + "벙어리된 메세지입니다." + "\r\n";
+                pw.println(request);
+                textField.setText("");
+                textField.requestFocus();
+            }
+            else {
+            	String request = "message:" + message + "\r\n";
+                pw.println(request);
+                textField.setText("");
+                textField.requestFocus();
+            }
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -120,12 +133,28 @@ public class ChatWindow {
 
         public void run() {
             try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-                while(true) {
-                    String msg = br.readLine();
-                    textArea.append(msg);
-                    textArea.append("\n");
-                }
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+				PrintWriter pw = new PrintWriter(out, true);
+                while(true) { 
+					String line = reader.readLine();
+					if(line.equals("!@#BAN!@#")) {
+						String request = "quit\r\n";
+		                pw.println(request);
+		                System.exit(0);
+					}
+					else if(line.equals("!@#quite!@#")) {
+						quite = true;
+					}
+					else if(line.equals("!@#cancel!@#")) {
+						quite = false;
+					}
+					else {
+						System.out.println(line);
+						textArea.append(line);
+	                    textArea.append("\n");
+					}
+				}
             }
             catch (IOException e) {
                 e.printStackTrace();

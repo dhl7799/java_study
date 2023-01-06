@@ -11,26 +11,10 @@ import java.util.Scanner;
 public class ChatClientApp extends Thread{
     private static final String SERVER_IP = "0.0.0.0";
     private static final int SERVER_PORT = 8000;
-    private Socket socket = null;
     private static Scanner scanner = new Scanner(System.in);
     
     
-    public ChatClientApp(Socket socket) { 
-    	this.socket = socket; 
-    }
-    @Override
-    public void run() {
-		try {
-			while(true) { 
-				sendMessage();
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace(); 
-		}
-		
-		
-	}
+  
     public static void main(String[] args) {
         String name = null;
         
@@ -52,10 +36,9 @@ public class ChatClientApp extends Thread{
         try {
             socket.connect( new InetSocketAddress(SERVER_IP, SERVER_PORT) );
             consoleLog("채팅방에 입장하였습니다.");
-            new ChatWindow(name, socket).show();
-            ChatClientApp chatca = new ChatClientApp(socket);
-
-            chatca.start();
+            ChatWindow cw = new ChatWindow(name,socket);
+            cw.show();
+                     
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             PrintWriter pw = new PrintWriter(out, true);
             String request = "join:" + name + "\r\n";
@@ -73,26 +56,5 @@ public class ChatClientApp extends Thread{
         System.out.println(log);
     }
     
-    private void sendMessage() {
-        PrintWriter pw;
-        try {
-        	OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
-            pw = new PrintWriter(out, true);
-            String message = scanner.nextLine();
-            if(message.equals("!quit")) {
-            	String request = "quit\r\n";
-                pw.println(request);
-                System.exit(0);
-            }
-            else {
-            	String request = "message:" + message + "\r\n";
-                pw.println(request);
-            }
-            
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
+  
 }

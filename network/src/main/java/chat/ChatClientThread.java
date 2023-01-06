@@ -32,7 +32,7 @@ public class ChatClientThread extends Thread{
 		}
 	
 	}
-	
+
 	private class ChatClientReadThread extends Thread{
 		@Override
 		public void run() {
