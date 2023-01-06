@@ -83,17 +83,7 @@ public class ChatServerThread extends Thread{
     private int getNameIndex(String name) {
     	return usernames.indexOf(name);
     }
-    /*
-    private void removeWriter(PrintWriter writer, int index) {
-    	synchronized (usernames) {
-    		usernames.remove(usernames.get(index));
-        }
-        synchronized (userlist) {
-        	userlist.remove(writer);
-        }
-        
-    }
-    */
+    
     private void removeWriter(PrintWriter writer) {
     	synchronized (usernames) {
         	usernames.remove(nickname);

@@ -32,7 +32,7 @@ public class ChatWindow {
 
     public ChatWindow(String name, Socket socket) {
         this.name = name;
-        frame = new Frame(this.name);
+        frame = new Frame(this.name +"의 채팅창");
         pannel = new Panel();
         buttonSend = new Button("Send");
         textField = new TextField();
