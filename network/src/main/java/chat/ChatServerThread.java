@@ -120,8 +120,10 @@ public class ChatServerThread extends Thread{
         synchronized (userlist) {
         	if(userlist.size()==1) {
         		String data1 = nickname + "님이 방장입니다.";
-                consoleLog(data1);
+        		consoleLog(data1);
                 broadcast(data1);
+        		userlist.get(0).println("ban:닉네임 = 강퇴, quite:닉네임 = 벙어리, cancel:닉네임 = 벙어리 해제");
+                
                 
         	}
         }
